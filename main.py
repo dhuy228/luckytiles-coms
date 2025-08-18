@@ -11,7 +11,6 @@ app = FastAPI()
 def read_root():
     return {"Hello": "World"}
 
-
 @app.get("/humanitix/current-week-events")
 def get_current_week_attendees():
 
@@ -33,13 +32,13 @@ def get_event_attendees(event_id: str):
     end_of_week = start_of_week + timedelta(days=6)
     
     headers = {
-        "Authorization": f"Bearer {api_key}",
-        "Content-Type": "application/json"
+        "x-api-key": f"{api_key}",
+        "Accept": "application/json"
     }
     
     try:
         # Fetch all events (without date parameters)
-        events_url = "https://api.humanitix.com/v1/events"
+        events_url = "https://api.humanitix.com/v1/events/{event_id}"
         
         events_response = requests.get(events_url, headers=headers)
         events_response.raise_for_status()
@@ -47,10 +46,8 @@ def get_event_attendees(event_id: str):
         
         result = []
         
-        for event in events_data.get("events", []):
-            event_id = event["id"]
-            event_name = event["name"]
-            event_date_str = event["start_date"]
+        for event in events_data.get("dates", []):
+            event_date_str = event["startDate"]
             
             # Parse event date and check if it's in current week
             try:
