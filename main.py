@@ -40,14 +40,10 @@ def get_current_week_attendees():
     }
     
     try:
-        # Fetch events for current week
+        # Fetch all events (without date parameters)
         events_url = "https://api.humanitix.com/v1/events"
-        params = {
-            "start_date": start_of_week.strftime("%Y-%m-%d"),
-            "end_date": end_of_week.strftime("%Y-%m-%d")
-        }
         
-        events_response = requests.get(events_url, headers=headers, params=params)
+        events_response = requests.get(events_url, headers=headers)
         events_response.raise_for_status()
         events_data = events_response.json()
         
@@ -56,7 +52,20 @@ def get_current_week_attendees():
         for event in events_data.get("events", []):
             event_id = event["id"]
             event_name = event["name"]
-            event_date = event["start_date"]
+            event_date_str = event["start_date"]
+            
+            # Parse event date and check if it's in current week
+            try:
+                event_date = datetime.fromisoformat(event_date_str.replace('Z', '+00:00'))
+                event_date_local = event_date.replace(tzinfo=None)  # Remove timezone for comparison
+                
+                # Check if event is in current week
+                if not (start_of_week <= event_date_local <= end_of_week):
+                    continue
+                    
+            except (ValueError, AttributeError):
+                # Skip events with invalid dates
+                continue
             
             # Fetch attendees for this event
             attendees_url = f"https://api.humanitix.com/v1/events/{event_id}/attendees"
@@ -72,7 +81,7 @@ def get_current_week_attendees():
             
             event_info = {
                 "eventName": event_name,
-                "date": event_date,
+                "date": event_date_str,
                 "attendeesByTicketType": ticket_counts,
                 "totalAttendees": sum(ticket_counts.values())
             }
