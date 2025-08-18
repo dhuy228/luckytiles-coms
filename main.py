@@ -125,6 +125,17 @@ def _get_current_week_event_info(event_id: str, sub_event_id: str):
                                       headers=headers,
                                       params=params)
         event_response.raise_for_status()
+    except requests.exceptions.HTTPError as e:
+            if e.response.status_code == 404:
+                # Try again with overrideLocation=AU parameter
+                params["overrideLocation"] = "AU"
+                event_response = requests.get(event_url, headers=headers, params=params)
+                event_response.raise_for_status()
+            else:
+                raise HTTPException(status_code=500,
+                            detail=f"Unexpected error: {str(e)}")
+        
+    try:
         event_data = event_response.json()
 
         total_tickets = event_data.get("total", 0)
