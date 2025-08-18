@@ -91,7 +91,7 @@ def _get_current_week_event_id(event_id: str):
     except requests.exceptions.RequestException as e:
         raise HTTPException(
             status_code=500,
-            detail=f"Error fetching data from Humanitix API: {str(e)}")
+            detail=f"Error fetching sub_event_id data from Humanitix API: {str(e)}")
     except Exception as e:
         raise HTTPException(status_code=500,
                             detail=f"Unexpected error: {str(e)}")
@@ -145,7 +145,7 @@ def _get_current_week_event_info(event_id: str, sub_event_id: str):
     except requests.exceptions.RequestException as e:
         raise HTTPException(
             status_code=500,
-            detail=f"Error fetching data from Humanitix API: {str(e)}")
+            detail=f"Error fetching sub_event_info data from Humanitix API: {str(e)}. Id: {sub_event_id}")
     except Exception as e:
         raise HTTPException(status_code=500,
                             detail=f"Unexpected error: {str(e)}")
@@ -166,7 +166,7 @@ def _format_event_message(data):
 
 
 @app.get("/humanitix/events/{event_id}")
-def get_events(event_id: str, api_key: str = Depends(verify_api_key)):
+def get_events(event_id: str, _api_key: str = Depends(verify_api_key)):
     """
     Get attendee information for a specific Humanitix event
     Returns eventName, Date, and number of attendees for each ticket type
@@ -191,7 +191,7 @@ def get_events(event_id: str, api_key: str = Depends(verify_api_key)):
         })
 
     total_tickets, ticket_type_data = _get_current_week_event_info(
-        event_id, "683af95e3a481689dadda7ac")
+        event_id, "sub_event_id")
 
     try:
         return _format_event_message({
@@ -204,7 +204,7 @@ def get_events(event_id: str, api_key: str = Depends(verify_api_key)):
     except requests.exceptions.RequestException as e:
         raise HTTPException(
             status_code=500,
-            detail=f"Error fetching data from Humanitix API: {str(e)}")
+            detail=f"Error fetching get_events data from Humanitix API: {str(e)}")
     except Exception as e:
         raise HTTPException(status_code=500,
                             detail=f"Unexpected error: {str(e)}")
