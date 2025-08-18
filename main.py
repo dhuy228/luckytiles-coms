@@ -6,9 +6,20 @@ import os
 import requests
 import pytz
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends, Header
 
 app = FastAPI()
+
+def verify_api_key(x_api_key: str = Header()):
+    """Verify the API key in the request header"""
+    expected_api_key = os.getenv("API_KEY")
+    if not expected_api_key:
+        raise HTTPException(status_code=500, detail="API key not configured on server")
+    
+    if x_api_key != expected_api_key:
+        raise HTTPException(status_code=401, detail="Invalid API key")
+    
+    return x_api_key
 
 
 @app.get("/")
@@ -155,7 +166,7 @@ def _format_event_message(data):
 
 
 @app.get("/humanitix/events/{event_id}")
-def get_events(event_id: str):
+def get_events(event_id: str, api_key: str = Depends(verify_api_key)):
     """
     Get attendee information for a specific Humanitix event
     Returns eventName, Date, and number of attendees for each ticket type
