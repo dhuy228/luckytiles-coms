@@ -17,8 +17,36 @@ def get_current_week_attendees():
     Get attendee information for current week Humanitix events
     Returns eventName, Date, and number of attendees for each ticket type
     """
-    # TODO: Implement this endpoint once we have the correct API structure
-    return {"message": "This endpoint needs to be implemented"}
+    
+    # Get API key from environment variables
+    api_key = os.getenv("HUMANITIX_API_KEY")
+    if not api_key:
+        raise HTTPException(status_code=500, detail="Humanitix API key not configured")
+    
+    # Calculate current week date range
+    today = datetime.now()
+    start_of_week = today - timedelta(days=today.weekday())
+    end_of_week = start_of_week + timedelta(days=6)
+    
+    headers = {
+        "x-api-key": f"{api_key}",
+        "Accept": "application/json"
+    }
+    
+    try:
+        # Note: This endpoint would need to be modified once we know how to get all events
+        # For now, this is a placeholder that shows the structure
+        return {
+            "message": "To implement this endpoint, we need to know how to get a list of all events from Humanitix API",
+            "weekRange": {
+                "startDate": start_of_week.strftime("%Y-%m-%d"),
+                "endDate": end_of_week.strftime("%Y-%m-%d")
+            },
+            "note": "Once we have an endpoint to list all events, we can filter by dates and get attendees for each"
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
 
 @app.get("/humanitix/events/{event_id}/attendees")
 def get_event_attendees(event_id: str):
@@ -58,9 +86,19 @@ def get_event_attendees(event_id: str):
 
         return {
             "eventName": event_data.get("name"),
-            "date": event_data.get("start_date"),
+            "eventId": event_data.get("_id"),
+            "description": event_data.get("description"),
+            "location": event_data.get("eventLocation", {}).get("venueName"),
+            "address": event_data.get("eventLocation", {}).get("address"),
+            "startDate": event_data.get("startDate"),
+            "endDate": event_data.get("endDate"),
+            "timezone": event_data.get("timezone"),
+            "dates": event_data.get("dates", []),
             "attendeesByTicketType": ticket_counts,
-            "totalAttendees": sum(ticket_counts.values())
+            "totalAttendees": sum(ticket_counts.values()),
+            "ticketTypes": event_data.get("ticketTypes", []),
+            "totalCapacity": event_data.get("totalCapacity"),
+            "eventUrl": event_data.get("url")
         }
 
     except requests.exceptions.RequestException as e:
