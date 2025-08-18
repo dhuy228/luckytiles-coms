@@ -191,7 +191,7 @@ def get_events(event_id: str, _api_key: str = Depends(verify_api_key)):
         })
 
     total_tickets, ticket_type_data = _get_current_week_event_info(
-        event_id, "sub_event_id")
+        event_id, sub_event_id)
 
     try:
         return _format_event_message({
