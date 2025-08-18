@@ -48,6 +48,16 @@ def _get_current_week_event_id(event_id: str):
         event_url = f"https://api.humanitix.com/v1/events/{event_id}"
         event_response = requests.get(event_url, headers=headers)
         event_response.raise_for_status()
+    except requests.exceptions.HTTPError as e:
+            if e.response.status_code == 404:
+                # Try again with overrideLocation=AU parameter
+                params = {"overrideLocation": "AU"}
+                event_response = requests.get(event_url, headers=headers, params=params)
+                event_response.raise_for_status()
+            else:
+                raise HTTPException(status_code=500,
+                            detail=f"Unexpected error: {str(e)}")
+        
         event_data = event_response.json()
 
         name = event_data.get("name", "")
