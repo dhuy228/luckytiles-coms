@@ -35,7 +35,9 @@ def get_events(event_id: str):
         event_response.raise_for_status()
         event_data = event_response.json()
 
-        return event_data
+        return {
+            "dates": event_data.get("dates", [])
+        }
 
     except requests.exceptions.RequestException as e:
         raise HTTPException(status_code=500, detail=f"Error fetching data from Humanitix API: {str(e)}")
