@@ -57,7 +57,7 @@ def _get_current_week_event_id(event_id: str):
             else:
                 raise HTTPException(status_code=500,
                             detail=f"Unexpected error: {str(e)}")
-        
+    try:
         event_data = event_response.json()
 
         name = event_data.get("name", "")
