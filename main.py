@@ -148,7 +148,6 @@ def _get_current_week_event_info(event_id: str, sub_event_id: str):
 
         for ticket in tickets:
             ticket_type = ticket.get('ticketTypeName', '')
-            number = ticket.get('number', 0)
 
             # Get attendee name
             first_name = ticket.get('firstName', '')
@@ -156,7 +155,7 @@ def _get_current_week_event_info(event_id: str, sub_event_id: str):
             full_name = f"{first_name} {last_name}".strip()
 
             # Add to totals
-            ticket_type_data[ticket_type]['total_attendees'] += number
+            ticket_type_data[ticket_type]['total_attendees'] += 1
 
             # Add attendee name (handle multiple tickets per person)
             ticket_type_data[ticket_type]['attendee_names'].append(full_name)
