@@ -116,7 +116,7 @@ def _get_current_week_event_info(event_id: str, sub_event_id: str):
 
     headers = {"x-api-key": f"{api_key}", "Accept": "application/json"}
 
-    params = {"page": 1, "eventDateId": sub_event_id}
+    params = {"page": 1, "eventDateId": sub_event_id, "status":"complete"}
 
     try:
         # Fetch specific event details
